@@ -1,7 +1,7 @@
 import express from 'express';
 import { graphqlHTTP } from 'express-graphql';
 import schema from './schema/schema';
-import connectDb from './db/moongose';
+import connectDb from '../db/moongose';
 
 const app = express();
 
