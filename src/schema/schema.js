@@ -6,7 +6,7 @@ import {
  import Book from '../models/book';
  import Author from '../models/author';
  import User from '../models/User';
-
+import bcrypt from 'bcrypt'
 //Schema defines data on the Graph like object types(book type), the relation between
 //these object types and describes how they can reach into the graph to interact with
 //the data to retrieve or mutate the data  
