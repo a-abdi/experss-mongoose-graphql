@@ -5,6 +5,7 @@ import {
  } from 'graphql';
  import Book from '../models/book';
  import Author from '../models/author';
+ import User from '../models/User';
 
 //Schema defines data on the Graph like object types(book type), the relation between
 //these object types and describes how they can reach into the graph to interact with
@@ -29,7 +30,15 @@ const BookType = new GraphQLObjectType({
    })
 });
 
-
+const UserType = new GraphQLObjectType({
+    name: 'User',
+    fields: () => ({
+        _id: { type: GraphQLID  },
+        name: { type: GraphQLString },
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+    })
+ });
 
 const AuthorType = new GraphQLObjectType({
    name: 'Author',
@@ -124,7 +133,43 @@ const Mutation = new GraphQLObjectType({
                 })
                 return book.save()
             }
-        }
+        },
+        signup:{
+            type:UserType,
+            args:{
+                name: { type: GraphQLString},
+                email: { type: new GraphQLNonNull(GraphQLString)},
+                password: { type:GraphQLString},
+                repeatPassword: { type: new GraphQLNonNull(GraphQLString)},
+            },
+            async resolve(parent,args){
+                const user = new User({
+                    name:args.name,
+                    email:args.email,
+                    password:args.password,
+                })
+                const newUser = JSON.parse(JSON.stringify(await user.save()))
+                delete newUser.password
+                return newUser
+            }
+        },
+        signin:{
+            type:UserType,
+            args:{
+                email: { type: new GraphQLNonNull(GraphQLString)},
+                password: { type: new GraphQLNonNull(GraphQLString)},
+            },
+            async resolve(parent,args){
+                const user = new User({
+                    name:args.name,
+                    email:args.email,
+                    password:args.password,
+                })
+                const newUser = JSON.parse(JSON.stringify(await user.save()))
+                delete newUser.password
+                return newUser
+            }
+        },
     }
  });
 

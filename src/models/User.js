@@ -8,10 +8,12 @@ const userSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
         index: true,
-        
-
+        validate: () => Promise.resolve('yes')
     },
-    password: String,
+    password: { 
+        type: String,
+        select: false
+    },
 });
 
 export default mongoose.model('User', userSchema);
