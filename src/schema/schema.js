@@ -6,8 +6,7 @@ import {
  import Book from '../models/book';
  import Author from '../models/author';
  import User from '../models/User';
-import bcrypt from 'bcrypt'
-//Schema defines data on the Graph like object types(book type), the relation between
+ //Schema defines data on the Graph like object types(book type), the relation between
 //these object types and describes how they can reach into the graph to interact with
 //the data to retrieve or mutate the data  
 
@@ -30,13 +29,21 @@ const BookType = new GraphQLObjectType({
    })
 });
 
+const UserLogin = new GraphQLObjectType({
+    name: 'UserLogin',
+    fields: () => ({
+        token: {
+            type: GraphQLString,
+        },
+    })
+ });
+
 const UserType = new GraphQLObjectType({
     name: 'User',
     fields: () => ({
         _id: { type: GraphQLID  },
         name: { type: GraphQLString },
         email: { type: GraphQLString },
-        password: { type: GraphQLString },
     })
  });
 
@@ -140,7 +147,7 @@ const Mutation = new GraphQLObjectType({
                 name: { type: GraphQLString},
                 email: { type: new GraphQLNonNull(GraphQLString)},
                 password: { type:GraphQLString},
-                repeatPassword: { type: new GraphQLNonNull(GraphQLString)},
+                repeatPassword: { type: GraphQLString},
             },
             async resolve(parent,args){
                 const user = new User({
@@ -154,20 +161,15 @@ const Mutation = new GraphQLObjectType({
             }
         },
         signin:{
-            type:UserType,
+            type:UserLogin,
             args:{
                 email: { type: new GraphQLNonNull(GraphQLString)},
                 password: { type: new GraphQLNonNull(GraphQLString)},
             },
             async resolve(parent,args){
-                const user = new User({
-                    name:args.name,
-                    email:args.email,
-                    password:args.password,
-                })
-                const newUser = JSON.parse(JSON.stringify(await user.save()))
-                delete newUser.password
-                return newUser
+                const user = new User({email: args.email, password: args.password})
+                const token = await user.credentials()
+                return { token }
             }
         },
     }
