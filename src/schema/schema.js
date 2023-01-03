@@ -111,6 +111,26 @@ const RootQuery = new GraphQLObjectType({
                 return Goods.find({});
             }
         },
+        order: {
+            type: OrderType,
+            //argument passed by the user while making the query
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args) {
+                //Here we define how to get data from a database source
+
+
+
+                //this will return the book with id passed in argument
+                //by the user
+                return Order.findById(args.id).populate('user').populate('goods').exec();
+            }
+        },
+        orders:{
+            type: new GraphQLList(OrderType),
+            resolve(parent, args) {
+                return Order.find({}).populate('user').populate('goods').exec();
+            }
+        },
         book: {
             type: BookType,
             //argument passed by the user while making the query
