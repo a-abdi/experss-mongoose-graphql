@@ -5,11 +5,13 @@ const orderSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true,
         index: true,
+        ref: 'User'
     },
     goods: {
         type: Schema.Types.ObjectId,
         required: true,
         index: true,
+        ref: 'Goods'
     },
     count: { 
         type: Number,
@@ -18,6 +20,12 @@ const orderSchema = new Schema({
 },
 {
     timestamps: true
+});
+
+orderSchema.post('save', function(order, next) {
+    order.populate('user goods').then(function() {
+      next();
+    });
 });
 
 export default mongoose.model('Order', orderSchema);

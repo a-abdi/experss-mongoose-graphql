@@ -7,6 +7,7 @@ import Book from '../models/book';
 import Author from '../models/author';
 import User from '../models/User';
 import Goods from '../models/Goods';
+import Order from '../models/Order';
  //Schema defines data on the Graph like object types(book type), the relation between
 //these object types and describes how they can reach into the graph to interact with
 //the data to retrieve or mutate the data  
@@ -33,9 +34,19 @@ const BookType = new GraphQLObjectType({
 const GoodsType = new GraphQLObjectType({
     name: 'Goods',
     fields: () => ({
-        id: { type: GraphQLID  },
+        _id: { type: GraphQLID  },
         name: { type: GraphQLString },
         price: { type: GraphQLInt },
+        count: { type: GraphQLInt }
+    })
+ });
+
+ const OrderType = new GraphQLObjectType({
+    name: 'Order',
+    fields: () => ({
+        id: { type: GraphQLID },
+        user: { type: UserType },
+        goods: { type: GoodsType },
         count: { type: GraphQLInt }
     })
  });
@@ -53,24 +64,25 @@ const UserType = new GraphQLObjectType({
     name: 'User',
     fields: () => ({
         _id: { type: GraphQLID  },
+        role: { type: GraphQLInt  },
         name: { type: GraphQLString },
         email: { type: GraphQLString },
     })
  });
 
 const AuthorType = new GraphQLObjectType({
-   name: 'Author',
-   fields: () => ({
-       id: { type: GraphQLID },
-       name: { type: GraphQLString },
-       age: { type: GraphQLInt },
-       book:{
-           type: new GraphQLList(BookType),
-           resolve(parent,args){
-               return Book.find({ authorID: parent.id });
-           }
-       }
-   })
+    name: 'Author',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        age: { type: GraphQLInt },
+        book:{
+            type: new GraphQLList(BookType),
+            resolve(parent,args){
+                return Book.find({ authorID: parent.id });
+            }
+        }
+    })
 })
 
 //RootQuery describes how users can use the graph and grab data.
@@ -186,18 +198,36 @@ const Mutation = new GraphQLObjectType({
                 return goods.save()
             }
         },
+        addOrder:{
+            type:OrderType,
+            args:{
+                userId: { type: new GraphQLNonNull(GraphQLID)},
+                goodsId: { type: new GraphQLNonNull(GraphQLID)},
+                count: { type: new GraphQLNonNull(GraphQLInt)}
+            },
+            resolve(parent,args){
+                const order = new Order({
+                    user:args.userId,
+                    goods:args.goodsId,
+                    count:args.count
+                })
+                return order.save()
+            }
+        },
         signup:{
             type:UserType,
             args:{
                 name: { type: GraphQLString},
                 email: { type: new GraphQLNonNull(GraphQLString)},
                 password: { type:GraphQLString},
+                role: { type:GraphQLInt},
                 repeatPassword: { type: GraphQLString},
             },
             async resolve(parent,args){
                 const user = new User({
                     name:args.name,
                     email:args.email,
+                    role:args.role,
                     password:args.password,
                 })
                 const newUser = JSON.parse(JSON.stringify(await user.save()))
