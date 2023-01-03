@@ -3,19 +3,17 @@ import mongoose from "mongoose";
 const goodsSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
-    },
-    price: {
-        type: String,
         required: true,
         unique: true,
         lowercase: true,
         index: true,
-        validate: () => Promise.resolve('yes')
+    },
+    price: {
+        type: Number,
+        required: true,
     },
     count: { 
-        type: String,
-        // select: true
+        type: Number,
     },
 },
 {
