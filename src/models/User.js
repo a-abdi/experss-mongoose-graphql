@@ -15,9 +15,13 @@ const userSchema = new mongoose.Schema({
         index: true,
         validate: () => Promise.resolve('yes')
     },
+    role: {
+        type: Number,
+        required: true
+    },
     password: { 
         type: String,
-        // select: true
+        required: true
     },
 });
 
