@@ -3,9 +3,10 @@ import {
     GraphQLID, GraphQLInt, GraphQLSchema,
     GraphQLList, GraphQLNonNull
  } from 'graphql';
- import Book from '../models/book';
- import Author from '../models/author';
- import User from '../models/User';
+import Book from '../models/book';
+import Author from '../models/author';
+import User from '../models/User';
+import Goods from '../models/Goods';
  //Schema defines data on the Graph like object types(book type), the relation between
 //these object types and describes how they can reach into the graph to interact with
 //the data to retrieve or mutate the data  
@@ -28,6 +29,16 @@ const BookType = new GraphQLObjectType({
    }
    })
 });
+
+const GoodsType = new GraphQLObjectType({
+    name: 'Goods',
+    fields: () => ({
+        id: { type: GraphQLID  },
+        name: { type: GraphQLString },
+        price: { type: GraphQLInt },
+        count: { type: GraphQLInt }
+    })
+ });
 
 const UserLogin = new GraphQLObjectType({
     name: 'UserLogin',
@@ -139,6 +150,22 @@ const Mutation = new GraphQLObjectType({
                     authorID:args.authorID
                 })
                 return book.save()
+            }
+        },
+        addGoods:{
+            type:GoodsType,
+            args:{
+                name: { type: new GraphQLNonNull(GraphQLString)},
+                price: { type: new GraphQLNonNull(GraphQLInt)},
+                count: { type: new GraphQLNonNull(GraphQLInt)}
+            },
+            resolve(parent,args){
+                const goods = new Goods({
+                    name:args.name,
+                    price:args.price,
+                    count:args.count
+                })
+                return goods.save()
             }
         },
         signup:{
